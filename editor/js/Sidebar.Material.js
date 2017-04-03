@@ -3,20 +3,20 @@
  */
 
 Sidebar.Material = function ( editor ) {
-
+	var JSON2XML = new X2JS();
 	var signals = editor.signals;
 	var currentObject;
 
 	var container = new UI.Panel();
 	container.setBorderTop( '0' );
-	container.setPaddingTop( '20px' );
+	container.setPaddingTop( '10px' );
 
 	// New / Copy / Paste
 
 	var copiedMaterial;
 	var managerRow = new UI.Row();
 
-	managerRow.add( new UI.Text( '' ).setWidth( '90px' ) );
+	managerRow.add( new UI.Text( '' ).setWidth( '220px' ) );
 	managerRow.add( new UI.Button( 'New' ).onClick( function () {
 
 		var material = new THREE[ materialClass.getValue() ]();
@@ -38,6 +38,38 @@ Sidebar.Material = function ( editor ) {
 		editor.execute( new SetMaterialCommand( currentObject, copiedMaterial ), 'Pasted Material: ' + materialClass.getValue() );
 		refreshUI();
 		update();
+
+	} ) );
+		
+	managerRow.add( new UI.Button( 'to XML' ).setMarginLeft( '4px' ).onClick( function () {
+
+		var tempObj = {}
+			tempObj.name = currentObject.material.name;
+			tempObj.color = currentObject.material.color;;
+			tempObj.roughness = currentObject.material.roughness;
+			tempObj.metalness = currentObject.material.metalness;
+			tempObj.emissive = currentObject.material.emissive;
+			tempObj.opacity = currentObject.material.opacity;
+			tempObj.transparent = currentObject.material.transparent;
+			tempObj.alphaTest = currentObject.material.alphaTest;
+			tempObj.bumpScale = currentObject.material.bumpScale;
+			tempObj.normalScale = currentObject.material.normalScale.x;
+
+			if (currentObject.userData.mapSourceFile) tempObj.map = currentObject.userData.mapSourceFile;
+			if (currentObject.userData.alphaMapSourceFile) tempObj.alphaMap = currentObject.userData.alphaMapSourceFile;
+			if (currentObject.userData.bumpMapSourceFile) tempObj.bumpMap = currentObject.userData.bumpMapSourceFile;
+			if (currentObject.userData.normalMapSourceFile) tempObj.normalMap = currentObject.userData.normalMapSourceFile;
+			if (currentObject.userData.roughnessMap ) tempObj.map = currentObject.userData.roughnessMap;
+			if (currentObject.userData.metalnessMap ) tempObj.map = currentObject.userData.metalnessMap;
+			if (currentObject.userData.envMap ) tempObj.map = currentObject.userData.envMap;
+			if (currentObject.userData.lightMap ) tempObj.map = currentObject.userData.lightMap;
+			if (currentObject.userData.emissiveMap ) tempObj.map = currentObject.userData.emissiveMap;
+
+		var clone = JSON.stringify(tempObj);
+
+		var x = window.open('data:text/xml;charset=utf-8,<?xml version="1.0" encoding="UTF-8"?><material>'+JSON2XML.json2xml_str(JSON.parse(clone))+'</material>', "", "_blank")
+
+
 
 	} ) );
 
@@ -244,6 +276,7 @@ Sidebar.Material = function ( editor ) {
 	var materialMapRow = new UI.Row();
 	var materialMapEnabled = new UI.Checkbox( false ).onChange( update );
 	var materialMap = new UI.Texture().onChange( update );
+
 
 	materialMapRow.add( new UI.Text( 'Map' ).setWidth( '90px' ) );
 	materialMapRow.add( materialMapEnabled );
@@ -599,7 +632,8 @@ Sidebar.Material = function ( editor ) {
 					if ( material.map !== map ) {
 
 						editor.execute( new SetMaterialMapCommand( currentObject, 'map', map ) );
-
+						currentObject.userData.mapSourceFile = materialMap.texture.sourceFile;
+							
 					}
 
 				} else {
@@ -620,6 +654,7 @@ Sidebar.Material = function ( editor ) {
 					if ( material.alphaMap !== alphaMap ) {
 
 						editor.execute( new SetMaterialMapCommand( currentObject, 'alphaMap', alphaMap ) );
+						currentObject.userData.alphaMapSourceFile = materialAlphaMap.texture.sourceFile;
 
 					}
 
@@ -641,6 +676,7 @@ Sidebar.Material = function ( editor ) {
 					if ( material.bumpMap !== bumpMap ) {
 
 						editor.execute( new SetMaterialMapCommand( currentObject, 'bumpMap', bumpMap ) );
+						currentObject.userData.bumpMapSourceFile = materialBumpMap.texture.sourceFile;
 
 					}
 
@@ -668,6 +704,7 @@ Sidebar.Material = function ( editor ) {
 					if ( material.normalMap !== normalMap ) {
 
 						editor.execute( new SetMaterialMapCommand( currentObject, 'normalMap', normalMap ) );
+						currentObject.userData.normalMapSourceFile = materialNormalMap.texture.sourceFile;
 
 					}
 
@@ -722,6 +759,7 @@ Sidebar.Material = function ( editor ) {
 					if ( material.roughnessMap !== roughnessMap ) {
 
 						editor.execute( new SetMaterialMapCommand( currentObject, 'roughnessMap', roughnessMap ) );
+						currentObject.userData.roughnessMapSourceFile = materialRoughnessMap.texture.sourceFile;
 
 					}
 
@@ -743,6 +781,7 @@ Sidebar.Material = function ( editor ) {
 					if ( material.metalnessMap !== metalnessMap ) {
 
 						editor.execute( new SetMaterialMapCommand( currentObject, 'metalnessMap', metalnessMap ) );
+						currentObject.userData.metalnessMapSourceFile = materialMetalnessMap.texture.sourceFile;
 
 					}
 
@@ -764,6 +803,8 @@ Sidebar.Material = function ( editor ) {
 					if ( material.specularMap !== specularMap ) {
 
 						editor.execute( new SetMaterialMapCommand( currentObject, 'specularMap', specularMap ) );
+						currentObject.userData.specularMapSourceFile = materialSpecularMap.texture.sourceFile;
+
 
 					}
 
@@ -779,11 +820,12 @@ Sidebar.Material = function ( editor ) {
 
 				var envMapEnabled = materialEnvMapEnabled.getValue() === true;
 
-				var envMap = envMapEnabled ? materialEnvMap.getValue() : null;
+				var envMap = envMapEnabled ? envMap.getValue() : null;
 
 				if ( material.envMap !== envMap ) {
 
 					editor.execute( new SetMaterialMapCommand( currentObject, 'envMap', envMap ) );
+						currentObject.userData.envMapSourceFile = envMap.texture.sourceFile;
 
 				}
 
@@ -811,6 +853,7 @@ Sidebar.Material = function ( editor ) {
 					if ( material.lightMap !== lightMap ) {
 
 						editor.execute( new SetMaterialMapCommand( currentObject, 'lightMap', lightMap ) );
+						currentObject.userData.lightMapSourceFile = materialLightMap.texture.sourceFile;
 
 					}
 
@@ -832,6 +875,7 @@ Sidebar.Material = function ( editor ) {
 					if ( material.aoMap !== aoMap ) {
 
 						editor.execute( new SetMaterialMapCommand( currentObject, 'aoMap', aoMap ) );
+						currentObject.userData.aoMapSourceFile = materialAOMap.texture.sourceFile;
 
 					}
 
@@ -859,6 +903,7 @@ Sidebar.Material = function ( editor ) {
 					if ( material.emissiveMap !== emissiveMap ) {
 
 						editor.execute( new SetMaterialMapCommand( currentObject, 'emissiveMap', emissiveMap ) );
+						currentObject.userData.emissiveMapFile = materialEmissiveMap.texture.sourceFile;
 
 					}
 

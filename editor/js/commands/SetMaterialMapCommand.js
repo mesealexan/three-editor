@@ -26,7 +26,6 @@ var SetMaterialMapCommand = function ( object, mapName, newMap ) {
 SetMaterialMapCommand.prototype = {
 
 	execute: function () {
-
 		this.object.material[ this.mapName ] = this.newMap;
 		this.object.material.needsUpdate = true;
 		this.editor.signals.materialChanged.dispatch( this.object.material );
