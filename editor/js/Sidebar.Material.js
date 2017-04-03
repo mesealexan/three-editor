@@ -282,10 +282,12 @@ Sidebar.Material = function ( editor ) {
 	var materialNormalMapRow = new UI.Row();
 	var materialNormalMapEnabled = new UI.Checkbox( false ).onChange( update );
 	var materialNormalMap = new UI.Texture().onChange( update );
+	var materialNormalScale = new UI.Number( 1 ).setWidth( '30px' ).onChange( update );
 
 	materialNormalMapRow.add( new UI.Text( 'Normal Map' ).setWidth( '90px' ) );
 	materialNormalMapRow.add( materialNormalMapEnabled );
 	materialNormalMapRow.add( materialNormalMap );
+	materialNormalMapRow.add( materialNormalScale );
 
 	container.add( materialNormalMapRow );
 
@@ -669,6 +671,12 @@ Sidebar.Material = function ( editor ) {
 
 					}
 
+					if ( material.normalScale && material.normalScale.x !== materialNormalScale.getValue() ) {
+
+						editor.execute( new SetMaterialValueCommand( currentObject, 'normalScale',new THREE.Vector2( materialNormalScale.getValue(),materialNormalScale.getValue()) ) );
+
+					}
+
 				} else {
 
 					if ( normalMapEnabled ) textureWarning = true;
@@ -959,6 +967,7 @@ Sidebar.Material = function ( editor ) {
 			'alphaMap': materialAlphaMapRow,
 			'bumpMap': materialBumpMapRow,
 			'normalMap': materialNormalMapRow,
+			'normalScale': materialNormalMapRow,
 			'displacementMap': materialDisplacementMapRow,
 			'roughnessMap': materialRoughnessMapRow,
 			'metalnessMap': materialMetalnessMapRow,
@@ -1114,6 +1123,8 @@ Sidebar.Material = function ( editor ) {
 				materialNormalMap.setValue( material.normalMap );
 
 			}
+
+			materialNormalScale.setValue( material.normalScale.x );
 
 		}
 
